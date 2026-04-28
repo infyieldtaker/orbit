@@ -67,6 +67,7 @@ export const getServerSideProps = withPermissionCheckSsr(
             workspaceGroupId: parseInt(query.id as string),
           },
         },
+        discordUser: true
       },
     });
     const membership = currentUser?.workspaceMemberships?.[0];
@@ -469,6 +470,7 @@ export const getServerSideProps = withPermissionCheckSsr(
             workspaceGroupId: true,
           },
         },
+        discordUser: true
       },
     });
 
@@ -717,6 +719,11 @@ type pageProps = {
     birthdayDay: number;
     birthdayMonth: number;
     joinDate: string | null;
+    discordUser?: {
+      username: string,
+      avatar: string,
+      discordUserId: string,
+    }
   };
   workspaceMember: {
     departments: Array<{
@@ -1161,6 +1168,7 @@ const Profile: pageWithLayout<pageProps> = ({
                     birthdayDay: user.birthdayDay,
                     birthdayMonth: user.birthdayMonth,
                     joinDate: user.joinDate,
+                    DiscordUser: user.discordUser
                   }}
                   workspaceMember={workspaceMember || undefined}
                   availableDepartments={availableDepartments}

@@ -12,6 +12,7 @@ import {
   IconX,
   IconPencil,
   IconChevronDown,
+  IconBrandDiscord,
 } from "@tabler/icons-react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -58,6 +59,11 @@ type InformationTabProps = {
     birthdayDay?: number | null;
     birthdayMonth?: number | null;
     joinDate?: string | null;
+    DiscordUser?: {
+      username: string,
+      avatar: string,
+      discordUserId: string
+    }
   };
   workspaceMember?: {
     departments?: Array<{
@@ -301,7 +307,7 @@ export function InformationTab({
             </p>
           </Field>
 
-          <Field icon={IconUser} label="Discord ID">
+          <Field icon={IconBrandDiscord} label="Discord">
             {editing ? (
               <input
                 type="text"
@@ -310,6 +316,25 @@ export function InformationTab({
                 placeholder="Enter Discord ID"
                 className="w-full px-2 py-1 text-sm rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
+            ) : user.DiscordUser ? (
+              <div className="inline-flex items-center gap-2 bg-black/10 dark:bg-white/10 hover:bg-[#5865F2]/10 border border-black/20 dark:border-white/20 hover:border-[#5865F2]/30 rounded-full pl-1 pr-3 py-1 transition-colors cursor-default group">
+                {user.DiscordUser.avatar ? (
+                  <img
+                    src={`https://cdn.discordapp.com/avatars/${user.DiscordUser.discordUserId}/${user.DiscordUser.avatar}.png`}
+                    alt={user.DiscordUser.username}
+                    className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-[#5865F2] flex items-center justify-center flex-shrink-0">
+                    <span className="text-[10px] font-medium text-white">
+                      {user.DiscordUser.username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-[#5865F2] transition-colors">
+                  {user.DiscordUser.username}
+                </span>
+              </div>
             ) : workspaceMember?.discordId ? (
               <p className="text-sm font-semibold text-zinc-900 dark:text-white font-mono">
                 {workspaceMember.discordId}
