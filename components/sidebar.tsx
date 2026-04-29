@@ -168,7 +168,7 @@ function MobileWorkspaceSwitcher({
                       className="w-full flex items-center gap-3 p-3 rounded-2xl text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/60 active:bg-zinc-100 dark:active:bg-zinc-800 transition-colors duration-150 outline-none select-none"
                     >
                       <img
-                        src={ws.groupThumbnail || "/placeholder.svg"}
+                        src={ws.groupThumbnail || "/favicon.svg"}
                         alt=""
                         className="w-9 h-9 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0"
                       />
@@ -702,7 +702,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         <>
           <div
             className={clsx(
-              "fixed inset-0 z-[99991] bg-black/30 backdrop-blur-sm",
+              "fixed inset-0 z-[99995] bg-black/30 backdrop-blur-sm",
               "transition-opacity duration-300 ease-out",
               mobileMoreVisible ? "opacity-100" : "opacity-0"
             )}
@@ -712,7 +712,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
           <div
             className={clsx(
-              "fixed bottom-0 inset-x-0 z-[99992]",
+              "fixed bottom-0 inset-x-0 z-[99999]",
               "bg-white dark:bg-zinc-900 rounded-t-3xl shadow-2xl",
               "transition-transform duration-300 ease-out",
               mobileMoreVisible ? "translate-y-0" : "translate-y-full"
