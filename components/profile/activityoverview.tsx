@@ -39,6 +39,7 @@ ChartJS.register(
   Legend
 );
 
+type TimelineItem =
   | ({ __type: "session" } & ActivitySession & {
       user: { picture: string | null };
     })
