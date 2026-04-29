@@ -416,10 +416,8 @@ export async function rankChange(
 
 export async function getRobloxThumbnail(id: number | bigint): Promise<string | null> {
   try {
-    const thumbnails = await withTimeout(
-      noblox.getPlayerThumbnail(Number(id), "720x720", "png", false, "headshot")
-    );
-    return thumbnails[0]?.imageUrl ?? "";
+    const thumbnail = await axios.get(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=720x720&format=Png&isCircular=false`)
+    return thumbnail.data.data[0].state == "Completed" ? thumbnail.data.data[0].imageUrl : ""
   } catch (error) {
     console.error(`Error getting thumbnail for user ${id}:`, error);
     return null;
