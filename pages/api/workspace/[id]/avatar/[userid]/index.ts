@@ -96,7 +96,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!/^[0-9]+$/.test(userid)) return res.status(400).end('Invalid userId');
   const userIdNum = Number(userid);
   if (!Number.isInteger(userIdNum) || userIdNum <= 0) return res.status(400).end('Invalid userId');
-  if (userIdNum > 10_000_000_000) return res.status(400).end('Invalid userId');
 
   let resolution = 180;
   if (resParam && !Array.isArray(resParam)) {
