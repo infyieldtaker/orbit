@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs/promises';
 import path from 'path';
 import axios from 'axios';
-import noblox from 'noblox.js';
 import { createHash } from 'crypto';
 import sharp from 'sharp';
 
@@ -29,6 +28,7 @@ function touch(key: string, entry: CacheEntry) {
 const CACHE_CONTROL = 'public, max-age=300, stale-while-revalidate=600';
 const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
 
+// Valid sizes accepted by the Roblox thumbnails v1 API for avatar-headshot
 const ROBLOX_RESOLUTIONS = [48, 50, 60, 75, 100, 110, 150, 180, 352, 420, 720];
 
 const BG_COLORS: Record<string, string> = {
@@ -65,8 +65,8 @@ async function fetchFallbackRobloxAvatarBuffer(targetResolution: number): Promis
   const size = Math.min(Math.max(targetResolution, 48), 720);
   for (const fid of FALLBACK_HEADSHOT_USER_IDS) {
     try {
-      const url = `https://www.roblox.com/headshot-thumbnail/image?userId=${fid}&width=${size}&height=${size}&format=png`;
-      const response = await axios.get(url, {
+      const imageUrl = await getRemoteAvatarUrl(fid, size);
+      const response = await axios.get(imageUrl, {
         responseType: 'arraybuffer',
         timeout: 12000,
         validateStatus: (status) => status === 200
@@ -96,7 +96,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!/^[0-9]+$/.test(userid)) return res.status(400).end('Invalid userId');
   const userIdNum = Number(userid);
   if (!Number.isInteger(userIdNum) || userIdNum <= 0) return res.status(400).end('Invalid userId');
-  if (userIdNum > 10_000_000_000) return res.status(400).end('Invalid userId');
 
   let resolution = 180;
   if (resParam && !Array.isArray(resParam)) {
@@ -353,11 +352,27 @@ async function triggerBackgroundRefresh(
   }
 }
 
-async function getRemoteAvatarUrl(userid: number, resolution: number = 180): Promise<string> {
-  try {
-    const thumbnails = await noblox.getPlayerThumbnail([userid], resolution as any, 'png', false, 'headshot');
-    if (thumbnails && thumbnails[0]?.imageUrl) return thumbnails[0].imageUrl;
-  } catch { }
+async function getRemoteAvatarUrl(userId: number, resolution: number = 180): Promise<string> {
+  const clampedRes = ROBLOX_RESOLUTIONS.includes(resolution)
+    ? resolution
+    : Math.min(resolution, 720);
 
-  return `https://www.roblox.com/headshot-thumbnail/image?userId=${userid}&width=${resolution}&height=${resolution}&format=png`;
+  const size = `${clampedRes}x${clampedRes}`;
+
+  try {
+    const response = await axios.get<{
+      data: Array<{ targetId: number; state: string; imageUrl: string }>;
+    }>(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${String(userId)}&size=${size}&format=Png&isCircular=false`, {
+      timeout: 10000,
+      validateStatus: (status) => status === 200
+    });
+
+    const entry = response.data?.data?.[0];
+    if (entry?.imageUrl) return entry.imageUrl;
+
+    console.warn('Roblox Thumbnails API returned no imageUrl for', userId, entry);
+  } catch (e) {
+    console.warn('Roblox Thumbnails API request failed for', userId, e);
+  }
+  return `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=${clampedRes}&height=${clampedRes}&format=png`;
 }

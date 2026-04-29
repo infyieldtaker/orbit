@@ -279,18 +279,18 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
     filledIcon?: React.ElementType;
     accessible?: boolean;
   }[] = [
-    { name: "Home", href: `/workspace/${workspace.groupId}`, icon: IconHome, filledIcon: IconHomeFilled },
-    { name: "Wall", href: `/workspace/${workspace.groupId}/wall`, icon: IconMessage2, filledIcon: IconMessage2Filled, accessible: workspace.yourPermission.includes("view_wall") },
-    { name: "Activity", href: `/workspace/${workspace.groupId}/activity`, icon: IconClipboardList, filledIcon: IconClipboardListFilled, accessible: true },
-    { name: "Quotas", href: `/workspace/${workspace.groupId}/quotas`, icon: IconTarget, accessible: true },
-    ...(noticesEnabled ? [{ name: "Notices", href: `/workspace/${workspace.groupId}/notices`, icon: IconClock, filledIcon: IconClockFilled, accessible: true }] : []),
-    ...(alliesEnabled ? [{ name: "Alliances", href: `/workspace/${workspace.groupId}/alliances`, icon: IconRosetteDiscountCheck, filledIcon: IconRosetteDiscountCheckFilled, accessible: true }] : []),
-    ...(sessionsEnabled ? [{ name: "Sessions", href: `/workspace/${workspace.groupId}/sessions`, icon: IconBell, filledIcon: IconBellFilled, accessible: true }] : []),
-    { name: "Staff", href: `/workspace/${workspace.groupId}/views`, icon: IconUser, filledIcon: IconUserFilled, accessible: workspace.yourPermission.includes("view_members") },
-    ...(docsEnabled ? [{ name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: IconFileText, filledIcon: IconFileTextFilled, accessible: true }] : []),
-    ...(policiesEnabled ? [{ name: "Policies", href: `/workspace/${workspace.groupId}/policies`, icon: IconShield, filledIcon: IconShieldFilled, accessible: true }] : []),
-    { name: "Settings", href: `/workspace/${workspace.groupId}/settings`, icon: IconSettings, filledIcon: IconSettingsFilled, accessible: ["admin", "workspace_customisation", "reset_activity", "manage_features", "manage_apikeys", "view_audit_logs"].some((perm) => workspace.yourPermission.includes(perm)) },
-  ];
+      { name: "Home", href: `/workspace/${workspace.groupId}`, icon: IconHome, filledIcon: IconHomeFilled },
+      { name: "Wall", href: `/workspace/${workspace.groupId}/wall`, icon: IconMessage2, filledIcon: IconMessage2Filled, accessible: workspace.yourPermission.includes("view_wall") },
+      { name: "Activity", href: `/workspace/${workspace.groupId}/activity`, icon: IconClipboardList, filledIcon: IconClipboardListFilled, accessible: true },
+      { name: "Quotas", href: `/workspace/${workspace.groupId}/quotas`, icon: IconTarget, accessible: true },
+      ...(noticesEnabled ? [{ name: "Notices", href: `/workspace/${workspace.groupId}/notices`, icon: IconClock, filledIcon: IconClockFilled, accessible: true }] : []),
+      ...(alliesEnabled ? [{ name: "Alliances", href: `/workspace/${workspace.groupId}/alliances`, icon: IconRosetteDiscountCheck, filledIcon: IconRosetteDiscountCheckFilled, accessible: true }] : []),
+      ...(sessionsEnabled ? [{ name: "Sessions", href: `/workspace/${workspace.groupId}/sessions`, icon: IconBell, filledIcon: IconBellFilled, accessible: true }] : []),
+      { name: "Staff", href: `/workspace/${workspace.groupId}/views`, icon: IconUser, filledIcon: IconUserFilled, accessible: workspace.yourPermission.includes("view_members") },
+      ...(docsEnabled ? [{ name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: IconFileText, filledIcon: IconFileTextFilled, accessible: true }] : []),
+      ...(policiesEnabled ? [{ name: "Policies", href: `/workspace/${workspace.groupId}/policies`, icon: IconShield, filledIcon: IconShieldFilled, accessible: true }] : []),
+      { name: "Settings", href: `/workspace/${workspace.groupId}/settings`, icon: IconSettings, filledIcon: IconSettingsFilled, accessible: ["admin", "workspace_customisation", "reset_activity", "manage_features", "manage_apikeys", "view_audit_logs"].some((perm) => workspace.yourPermission.includes(perm)) },
+    ];
 
   const visiblePages = pages.filter((p) => p.accessible === undefined || p.accessible);
   const bottomBarPages = visiblePages.slice(0, 4);
@@ -626,10 +626,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           isStandalone ? "flex flex-col" : "lg:hidden flex flex-col"
         )}
         style={{
-          WebkitTransform: "translateZ(0)",
-          transform: "translateZ(0)",
-          willChange: "transform",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          paddingBottom: "env(safe-area-inset-bottom)",
         }}
       >
         <div className="flex items-stretch h-16 w-full">
@@ -692,11 +689,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
       </nav>
       <div
         className={clsx(isStandalone ? "block" : "lg:hidden block")}
-        style={{
-          height: `calc(64px + env(safe-area-inset-bottom, 0px))`,
-          flexShrink: 0,
-        }}
-        aria-hidden
+        style={{ height: "64px" }}
       />
       {mobileMoreOpen && (
         <>

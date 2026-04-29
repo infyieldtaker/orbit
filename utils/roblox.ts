@@ -34,32 +34,44 @@ export async function initiateClient(apiKey: string) {
   return Client
 }
 
-async function listAllGroupRolesForGroup(
-  client: Awaited<ReturnType<typeof initiateClient>>,
-  groupId: string
-): Promise<{ id: string; rank: number }[]> {
-  const all: { id: string; rank: number }[] = [];
+async function listAllGroupRolesForGroup(client: any, groupId: string) {
+  const all: any[] = [];
+  const seen = new Set<string>();
   let pageToken: string | undefined;
-  do {
-    const page = await withTimeout<any>(
+
+  while (true) {
+    const res: any = await withTimeout(
       client.groups.listGroupRoles(groupId, {
         maxPageSize: 20,
         ...(pageToken ? { pageToken } : {}),
       })
     );
-    const slice = page.groupRoles ?? [];
-    for (const role of slice) {
+
+    const roles =
+      res.groupRoles ??
+      res.roles ??
+      res.data?.groupRoles ??
+      [];
+
+    for (const role of roles) {
+      if (!role?.id) continue;
+      if (seen.has(role.id)) continue;
+
+      seen.add(role.id);
       all.push(role);
     }
-    pageToken =
-      typeof page.nextPageToken === "string" && page.nextPageToken.length > 0
-        ? page.nextPageToken
-        : undefined;
-  } while (pageToken);
+
+    const next =
+      res.nextPageToken ??
+      res.data?.nextPageToken;
+
+    if (!next || next === pageToken) break;
+
+    pageToken = next;
+  }
 
   return all;
 }
-
 function robloxRankNum(roleLike: { rank?: unknown }): number {
   return Number(roleLike.rank);
 }
@@ -206,7 +218,7 @@ export async function terminateUser(userid: number, groupid: number, apiKey: str
   const Client = await initiateClient(apiKey);
 
   try {
-    const groupRolesList = await listAllGroupRolesForGroup(Client, groupid.toString());
+    const groupRolesList = await getAllRoles(groupid, apiKey)
     const targetRole = groupRolesList.find((grole) => Number(grole.rank) === 1);
     if (!targetRole) {
       console.log("[Integrated Ranking]: Couldn't find role with rank 1.");
@@ -240,7 +252,7 @@ export async function promoteUser(
       filter: `user == 'users/${userid}'`
     });
 
-    const groupRolesList = await listAllGroupRolesForGroup(Client, groupid.toString());
+    const groupRolesList = await getAllRoles(groupid, apiKey)
 
     if (userRoles.groupMemberships.length === 0) {
       return {
@@ -307,7 +319,7 @@ export async function demoteUser(userid: number, groupid: number, apiKey: string
       filter: `user == 'users/${userid}'`
     });
 
-    const groupRolesList = await listAllGroupRolesForGroup(Client, groupid.toString());
+    const groupRolesList = await getAllRoles(groupid, apiKey)
 
     if (userRoles.groupMemberships.length === 0) {
       return {
@@ -366,7 +378,7 @@ export async function rankChange(
   const Client = await initiateClient(apiKey);
 
   try {
-    const groupRolesList = await listAllGroupRolesForGroup(Client, groupid.toString());
+    const groupRolesList = await getAllRoles(groupid, apiKey)
     const TargetRole = groupRolesList.find((grole) => Number(grole.rank) === rankid);
 
     if (!TargetRole) {
@@ -404,10 +416,8 @@ export async function rankChange(
 
 export async function getRobloxThumbnail(id: number | bigint): Promise<string | null> {
   try {
-    const thumbnails = await withTimeout(
-      noblox.getPlayerThumbnail(Number(id), "720x720", "png", false, "headshot")
-    );
-    return thumbnails[0]?.imageUrl ?? "";
+    const thumbnail = await axios.get(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=720x720&format=Png&isCircular=false`)
+    return thumbnail.data.data[0].state == "Completed" ? thumbnail.data.data[0].imageUrl : ""
   } catch (error) {
     console.error(`Error getting thumbnail for user ${id}:`, error);
     return null;
