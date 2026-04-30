@@ -30,6 +30,7 @@ const messages = [
   "Almost there. Good things take a moment.",
   "We are almost ready.",
   "Maybe consider taking a coffee while we load everything.",
+  "To the ancient Egyptians, death was not the end of life — it was its greatest achievement.",
 ];
 
 export default function LoadingScreen({ done }: { done: boolean }) {
